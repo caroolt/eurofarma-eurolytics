@@ -35,18 +35,16 @@ export default function Projects() {
     const load = async () => {
       try {
         const data = await SupabaseService.getProjects()
-        // Todos os perfis veem todos os projetos na aba pública de projetos
         const roleFiltered = data
         setProjects(roleFiltered)
 
-        // Carregar contagens e participação do usuário
         const counts: Record<string, number> = {}
         const mine: Record<string, boolean> = {}
         for (const p of roleFiltered as any[]) {
           try {
-            const parts = await SupabaseService.getProjectParticipants(p.id)
-            counts[p.id] = parts.length
-            mine[p.id] = parts.some(x => (x as any).id === user!.id)
+            const parts = await SupabaseService.getProjectParticipants((p as any).id)
+            counts[(p as any).id] = parts.length
+            mine[(p as any).id] = parts.some((x: any) => x.id === user!.id)
           } catch {}
         }
         setParticipantCounts(counts)
@@ -63,14 +61,11 @@ export default function Projects() {
   if (!user) return null
 
   const normalize = (t: string) => t.toLowerCase().normalize('NFD').replace(/\p{Diacritic}+/gu, '').trim()
-  const filtered = projects.filter(p => {
+  const filtered = projects.filter((p: any) => {
     const q = normalize(searchTerm)
     if (!q) return true
-    return (
-      normalize(p.name).includes(q) ||
-      normalize(p.description || '').includes(q) ||
-      normalize((p as any).users?.full_name || '').includes(q)
-    )
+    const title = p.title || p.name || ''
+    return normalize(title).includes(q) || normalize(p.description || '').includes(q) || normalize(p.users?.full_name || '').includes(q)
   })
 
   return (
@@ -92,7 +87,6 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* Stats rápidos */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
@@ -110,7 +104,7 @@ export default function Projects() {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-2xl font-bold">{new Set(projects.map(p => (p as any).manager_id)).size}</p>
+                <p className="text-2xl font-bold">{new Set(projects.map((p: any) => p.manager_id)).size}</p>
                 <p className="text-sm text-gray-600">Gestores</p>
               </div>
             </div>
@@ -121,7 +115,7 @@ export default function Projects() {
             <div className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-yellow-600" />
               <div>
-                <p className="text-2xl font-bold">{projects.filter(p => (p.status || 'ativo') !== 'concluido').length}</p>
+                <p className="text-2xl font-bold">{projects.filter((p: any) => (p.status || 'ativo') !== 'concluido').length}</p>
                 <p className="text-sm text-gray-600">Em andamento</p>
               </div>
             </div>
@@ -129,22 +123,21 @@ export default function Projects() {
         </Card>
       </div>
 
-      {/* Lista de projetos */}
       {loading ? (
         <div className="flex items-center justify-center h-64">Carregando projetos...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filtered.map((p) => (
+          {filtered.map((p: any) => (
             <Card key={p.id}>
               <CardHeader>
-                <CardTitle className="text-lg">{p.name}</CardTitle>
+                <CardTitle className="text-lg">{p.title || p.name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-3 line-clamp-3">{p.description}</p>
                 <div className="flex items-center gap-3 text-sm text-gray-600 mb-3">
                   <Users className="h-4 w-4" />
-                  <span>Gestor: {(p as any).users?.full_name || '—'}</span>
-                  <span className="ml-2">Participantes: {participantCounts[p.id as any] ?? 0}/{p.max_participants || 8}</span>
+                  <span>Gestor: {p.users?.full_name || '—'}</span>
+                  <span className="ml-2">Participantes: {participantCounts[p.id] ?? 0}/{p.max_participants || 8}</span>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <Badge className={getStatusBadgeClass(p.status)}>Status: {p.status || 'ativo'}</Badge>
@@ -162,33 +155,32 @@ export default function Projects() {
                     size="sm"
                     className="cursor-pointer disabled:cursor-not-allowed"
                     disabled={
-                      !!processing[p.id as any] ||
-                      userInProject[p.id as any] ||
-                      (participantCounts[p.id as any] ?? 0) >= (p.max_participants || 0) ||
-                      (p as any).manager_id === user!.id ||
+                      !!processing[p.id] ||
+                      userInProject[p.id] ||
+                      (participantCounts[p.id] ?? 0) >= (p.max_participants || 0) ||
+                      p.manager_id === user!.id ||
                       (p.status === 'concluido')
                     }
                     onClick={async () => {
                       try {
-                        setProcessing(prev => ({ ...prev, [p.id as any]: true }))
-                        await SupabaseService.addParticipant(p.id as any, user!.id)
-                        await SupabaseService.updateUserPoints(user!.id, (user!.points || 0) + 20)
+                        setProcessing(prev => ({ ...prev, [p.id]: true }))
+                        await SupabaseService.addParticipant(p.id, user!.id)
                         toast({ title: 'Participação confirmada', description: 'Você entrou no projeto e ganhou +20 pontos.', variant: 'success' })
-                        setUserInProject(prev => ({ ...prev, [p.id as any]: true }))
-                        setParticipantCounts(prev => ({ ...prev, [p.id as any]: (prev[p.id as any] ?? 0) + 1 }))
+                        setUserInProject(prev => ({ ...prev, [p.id]: true }))
+                        setParticipantCounts(prev => ({ ...prev, [p.id]: (prev[p.id] ?? 0) + 1 }))
                       } catch (e: any) {
                         console.error('Falha ao participar do projeto', e)
                         toast({ title: 'Não foi possível participar', description: e?.message || 'Tente novamente mais tarde.', variant: 'destructive' })
                       } finally {
-                        setProcessing(prev => ({ ...prev, [p.id as any]: false }))
+                        setProcessing(prev => ({ ...prev, [p.id]: false }))
                       }
                     }}
                   >
                     {p.status === 'concluido' ? (
                       <>Projeto concluído</>
-                    ) : userInProject[p.id as any] ? (
+                    ) : userInProject[p.id] ? (
                       <>Já está participando</>
-                    ) : (processing[p.id as any] ? (
+                    ) : (processing[p.id] ? (
                       <>
                         <span className="mr-2 inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
                         Entrando...

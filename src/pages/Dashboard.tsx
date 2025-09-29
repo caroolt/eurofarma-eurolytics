@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [allUserIdeas, setAllUserIdeas] = useState<Idea[]>([])
   const [userIdeas, setUserIdeas] = useState<Idea[]>([])
   const [userRanking, setUserRanking] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
+  const [_, setLoading] = useState(true)
   const [rankingUsers, setRankingUsers] = useState<User[]>([])
   const [quizzesCompleted, setQuizzesCompleted] = useState<number>(0)
 

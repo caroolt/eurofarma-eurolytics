@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { User, Idea, Quiz, QuizQuestion, QuizAttempt, UserBadgeType, UserBadge, Project } from '../types/index'
+import type { User, Idea, Quiz, QuizAttempt, UserBadgeType, UserBadge, Project } from '../types/index'
 
 // Serviço para gerenciar dados do Supabase
 export class SupabaseService {

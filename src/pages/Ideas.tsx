@@ -39,7 +39,7 @@ export default function Ideas() {
   if (!user) return null
 
   const [userIdeas, setUserIdeas] = useState<Idea[]>([])
-  const [loading, setLoading] = useState(true)
+  const [_, setLoading] = useState(true)
 
   useEffect(() => {
     const loadUserIdeas = async () => {

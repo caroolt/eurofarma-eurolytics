@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
-import { Button } from '../components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { SupabaseService } from '../lib/supabaseService'
 import type { Idea, User } from '../types/index'
@@ -12,9 +11,7 @@ import {
   Target, 
   TrendingUp, 
   Calendar,
-  Award,
-  Edit3,
-  Settings
+  Award
 } from 'lucide-react'
 
 export default function Profile() {
@@ -225,7 +222,7 @@ export default function Profile() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {userIdeas.slice(0, 5).map((idea, index) => (
+                {userIdeas.slice(0, 5).map((idea) => (
                   <div key={idea.id} className="flex items-center space-x-3 p-2">
                     <div className={`w-2 h-2 rounded-full ${
                       idea.status === 'aprovado' ? 'bg-green-500' :

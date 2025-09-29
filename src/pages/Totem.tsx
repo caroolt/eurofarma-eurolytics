@@ -30,7 +30,7 @@ export default function Totem() {
   const [timeLeft, setTimeLeft] = useState(0)
   const [users, setUsers] = useState<User[]>([])
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
-  const [loading, setLoading] = useState(true)
+  const [_, setLoading] = useState(true)
 
   useEffect(() => {
     const loadData = async () => {

@@ -31,9 +31,10 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sidebarPoints, setSidebarPoints] = useState<number>(user.points)
+  const [sidebarPoints, setSidebarPoints] = useState<number>(user?.points ?? 0)
 
   useEffect(() => {
+    if (!user) return
     let cancelled = false
     const refresh = async () => {
       try {
@@ -50,7 +51,7 @@ export default function Layout({ children }: LayoutProps) {
     window.addEventListener('storage', onStorage)
     document.addEventListener('visibilitychange', onVisible)
     return () => { cancelled = true; clearInterval(id); window.removeEventListener('storage', onStorage); document.removeEventListener('visibilitychange', onVisible) }
-  }, [user.id])
+  }, [user?.id])
 
   const normalize = (text: string) =>
     text

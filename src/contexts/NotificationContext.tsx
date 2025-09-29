@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { useAuth } from './AuthContext'
 import { SupabaseService } from '../lib/supabaseService'
 
@@ -74,14 +75,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       // Tentativas de quiz recentes
       try {
         const attempts = await SupabaseService.getQuizAttemptsByUser(user.id)
-        for (const att of attempts.slice(0, 3)) {
+        for (const att of (attempts as any[]).slice(0, 3)) {
           list.push({
-            id: `quiz-${att.id}`,
+            id: `quiz-${(att as any).id || `${att.quiz_id}-${att.completed_at || ''}`}`,
             title: 'Quiz Concluído 🏆',
-            message: `Você concluiu um quiz e ganhou ${att.score ?? 0} pontos.`,
+            message: `Você concluiu um quiz e ganhou ${(att as any).score ?? 0} pontos.`,
             type: 'info',
             read: false,
-            createdAt: new Date(att.completed_at || att.created_at),
+            createdAt: new Date((att as any).completed_at || (att as any).created_at || new Date()),
             actionUrl: '/quizzes'
           })
         }
@@ -90,9 +91,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       // Badges conquistadas
       try {
         const userBadges = await SupabaseService.getUserBadges(user.id)
-        for (const ub of userBadges.slice(0, 3)) {
+        for (const ub of (userBadges as any[]).slice(0, 3)) {
           list.push({
-            id: `badge-${ub.id}`,
+            id: `badge-${(ub as any).id || `${(ub as any).badge_id}-${(ub as any).earned_at || ''}`}`,
             title: 'Badge Conquistada 🏅',
             message: `Você conquistou a badge "${(ub as any).badges?.name || 'Nova Badge'}".`,
             type: 'success',
